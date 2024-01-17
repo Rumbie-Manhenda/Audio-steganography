@@ -1,0 +1,108 @@
+
+<html>
+<head>
+<meta charset="utf-8">
+<title>Connecting to application</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<style>
+.loader {
+  display: block;
+}
+.loader-msg {
+  text-align: center;
+  padding-top: 50px;
+}
+.loader-img {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+  margin: auto;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  display: none;
+  text-align: center;
+  padding-top: 50px;
+  white-space:nowrap;
+}
+.error-img {
+  display:inline;
+}
+.error-h1 {
+  display:inline;
+  text-align: center;
+  white-space:nowrap;
+  vertical-align: 40%;
+}
+.error-p {
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="loader">
+  <h1 class="loader-msg">Your application is being loaded...</h1>
+  <div class="loader-img"></div>
+</div>
+
+<div class="error">
+  <div class="error-img">
+    <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="20" stroke="white" stroke-width="2" fill="#f8ad0a"/>
+      <text font-size="36" fill="white" font-family="Verdana" text-anchor="middle"
+            alignment-baseline="baseline" x="22" y="34.4">!</text>
+    </svg>
+  </div>
+  <h1 class="error-h1">Failed to load your application</h1>
+  <p class="error-p">
+    Please return to <a href="https://www.coursera.org">https://www.coursera.org</a> to re-launch
+    your application.
+  </p>
+</div>
+
+<script>
+function redirectIfReady() {
+  var requestUrl = '/api/workspaceHealthChecks.v1/sharedtouvunja?fields=isHealthy,url&forceRefresh=false';
+  $.getJSON(requestUrl, function(data) {
+    var loader = document.getElementsByClassName("loader");
+    if (data['elements'][0].isHealthy) {
+      window.location.replace(data['elements'][0].url+"");
+    } else if (loader[0].style.display != 'none') {
+      setTimeout(redirectIfReady, 2000);
+    }
+  })
+  .fail(function() { setTimeout(redirectIfReady, 2000); });
+}
+
+function showError() {
+  var error = document.getElementsByClassName("error");
+  var loader = document.getElementsByClassName("loader");
+  error[0].style.display = 'block';
+  loader[0].style.display = 'none';
+  document.title = 'Failed to load application';
+}
+
+if (false) {
+  showError();
+} else {
+  setTimeout(showError, 300000);
+  setTimeout(redirectIfReady, 2000);
+}
+</script>
+
+</body></html>
